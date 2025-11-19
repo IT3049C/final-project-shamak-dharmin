@@ -64,12 +64,12 @@
   color: var(--accent-secondary);
 }
 
-.game-board {
+.memory-match .game-board {
   width: 100%;
   max-width: 550px;
   margin: 0 auto;
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: 0.75rem;
   perspective: 1000px;
@@ -242,8 +242,8 @@
     padding: 1rem;
   }
   
-  .game-board {
-    grid-template-columns: repeat(4, 1fr) !important;
+  .memory-match .game-board {
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
     max-width: 100%;
     padding: 0.5rem;
@@ -260,7 +260,7 @@
 }
 
 @media (max-width: 480px) {
-  .game-board {
+  .memory-match .game-board {
     gap: 0.25rem;
   }
   
