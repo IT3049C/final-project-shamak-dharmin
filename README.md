@@ -30,16 +30,8 @@ I should get **(20)** out of 20 on this assignment.
 - 
 -
 
-## Team Members
-- Dharmin Patel
-- Shamak Patel
 
 Single-page Game Hub built with React and Vite. The hub routes between multiple mini‑games, shares a player name across the experience, and ships with Playwright tests and deployment-ready configuration.
-
-## Live Links
-
-- **Live URL:** _add your deployed URL here (Netlify / Vercel / GitHub Pages)_
-- **GitHub repository:** _add the public repo URL here_
 
 ## Games Included
 
