@@ -1,0 +1,55 @@
+.tictactoe {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.tictactoe .game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.tictactoe .game-title h1 {
+  margin: 0;
+}
+
+.tictactoe .player-tag {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tictactoe-main {
+  display: flex;
+  justify-content: center;
+}
+
+.tictactoe-board {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-template-rows: repeat(3, 80px);
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.square {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.tictactoe-status {
+  text-align: center;
+  font-size: 1.1rem;
+}

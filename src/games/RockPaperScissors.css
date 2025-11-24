@@ -1,0 +1,76 @@
+.rps {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.rps .game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.rps .game-title h1 {
+  margin: 0;
+}
+
+.rps .player-tag {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.rps-main {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.5fr) minmax(260px, 1fr);
+  gap: 2rem;
+  justify-content: center;
+}
+
+.rps-choices,
+.rps-status {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.rps-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.rps-buttons button.selected {
+  border-color: var(--accent-primary);
+}
+
+.rps-result {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.rps-round {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.rps-choice {
+  font-size: 1.1rem;
+}
+
+.rps-score {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .rps-main {
+    grid-template-columns: 1fr;
+  }
+}

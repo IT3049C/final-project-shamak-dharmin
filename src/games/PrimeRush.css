@@ -1,0 +1,77 @@
+.prime-rush {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.prime-rush .game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.prime-rush .game-title h1 {
+  margin: 0;
+}
+
+.prime-rush .player-tag {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.prime-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.2fr);
+  gap: 2rem;
+  justify-content: center;
+}
+
+.prime-number,
+.prime-actions {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.prime-label {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.prime-value {
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.prime-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prime-feedback {
+  margin-bottom: 1rem;
+}
+
+.prime-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prime-gameover {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .prime-main {
+    grid-template-columns: 1fr;
+  }
+}
