@@ -72,6 +72,24 @@ const Home = () => {
             <h2>Pattern Lock</h2>
             <p>Memorize and reproduce secret lock patterns</p>
           </Link>
+
+          <Link to="/rock-paper-scissors" className="game-card">
+            <div className="game-icon">✊</div>
+            <h2>Rock Paper Scissors</h2>
+            <p>Classic duel vs. computer with score tracking</p>
+          </Link>
+
+          <Link to="/tic-tac-toe" className="game-card">
+            <div className="game-icon">❌</div>
+            <h2>Tic Tac Toe</h2>
+            <p>Classic 3×3 grid game with win detection</p>
+          </Link>
+
+          <Link to="/quick-draw" className="game-card">
+            <div className="game-icon">⚡</div>
+            <h2>Quick Draw</h2>
+            <p>Fast-paced multiplayer emoji guessing game</p>
+          </Link>
         </div>
       </div>
     </div>

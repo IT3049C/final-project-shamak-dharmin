@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './RockPaperScissors.css';
 
 const CHOICES = ['rock', 'paper', 'scissors'];
@@ -20,7 +20,7 @@ const getResult = (player, cpu) => {
 
 const RockPaperScissors = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
   const [playerChoice, setPlayerChoice] = useState(null);
   const [cpuChoice, setCpuChoice] = useState(null);
   const [result, setResult] = useState(null);
@@ -61,6 +61,10 @@ const RockPaperScissors = () => {
       ? "It's a draw."
       : 'Make your move!';
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="rps">
       <ThemeToggle />
@@ -68,9 +72,18 @@ const RockPaperScissors = () => {
         <button className="back-button" onClick={handleBackHome}>
           ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Rock Paper Scissors</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleReset} aria-label="Reset Rock Paper Scissors game">

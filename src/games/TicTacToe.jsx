@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './TicTacToe.css';
 
 const initialBoard = Array(9).fill(null);
@@ -28,7 +28,7 @@ const getWinner = (squares) => {
 
 const TicTacToe = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
   const [board, setBoard] = useState(initialBoard);
   const [xIsNext, setXIsNext] = useState(true);
 
@@ -59,6 +59,10 @@ const TicTacToe = () => {
     ? "It's a draw"
     : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="tictactoe">
       <ThemeToggle />
@@ -66,9 +70,18 @@ const TicTacToe = () => {
         <button className="back-button" onClick={handleBackHome}>
           ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Tic Tac Toe</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleReset} aria-label="Reset Tic Tac Toe game">

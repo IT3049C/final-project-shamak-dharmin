@@ -11,6 +11,8 @@ test.describe('GameHub Landing Page', () => {
     await expect(page.getByRole('link', { name: /connect four/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /wordle/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /typing speed test/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /rock paper scissors/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /tic tac toe/i })).toBeVisible();
   });
 
   test('captures a player name', async ({ page }) => {
@@ -33,6 +35,8 @@ test.describe('GameHub Landing Page', () => {
       { name: /connect four/i, path: '/connect-four' },
       { name: /wordle/i, path: '/wordle' },
       { name: /typing speed test/i, path: '/typing-speed' },
+      { name: /rock paper scissors/i, path: '/rock-paper-scissors' },
+      { name: /tic tac toe/i, path: '/tic-tac-toe' },
     ];
 
     for (const link of links) {

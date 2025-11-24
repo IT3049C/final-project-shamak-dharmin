@@ -1,20 +1,37 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './TypingSpeed.css';
 
 const PHRASES = [
   'The quick brown fox jumps over the lazy dog.',
   'Typing games are a fun way to practice accuracy.',
   'React makes it painless to create interactive UIs.',
+  'JavaScript is the language of the web and beyond.',
+  'Practice makes perfect when learning to type faster.',
+  'Web development requires both creativity and logic.',
+  'Game design combines art, code, and user experience.',
+  'Programming helps you solve problems systematically.',
+  'The best way to learn coding is by building projects.',
+  'TypeScript adds type safety to JavaScript applications.',
+  'Modern frameworks make building complex apps easier.',
+  'Testing your code ensures it works as expected.',
+  'Version control helps teams collaborate effectively.',
+  'Clean code is easier to read and maintain.',
+  'User interface design impacts how people use software.',
+  'Debugging skills improve with practice and patience.',
+  'Open source communities drive innovation forward.',
+  'Responsive design adapts layouts to different screens.',
+  'APIs enable different applications to communicate.',
+  'Learning new technologies keeps your skills current.',
 ];
 
 const getRandomPhrase = () => PHRASES[Math.floor(Math.random() * PHRASES.length)];
 
 const TypingSpeed = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
   const [targetText, setTargetText] = useState(getRandomPhrase);
   const [input, setInput] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -63,16 +80,29 @@ const TypingSpeed = () => {
     return input[index] === char ? 'correct' : 'incorrect';
   };
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="typing-game">
       <ThemeToggle />
       <div className="game-header">
         <button className="back-button" onClick={handleBackHome}>
-          10 Back
+          ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Typing Speed Test</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleReset} aria-label="Reset typing game">

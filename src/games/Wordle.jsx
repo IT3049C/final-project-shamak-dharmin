@@ -1,10 +1,43 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './Wordle.css';
 
-const WORDS = ['APPLE', 'BRICK', 'GHOST', 'LIGHT', 'PLANT', 'ROBOT', 'SMILE', 'TRACK', 'WATER', 'ZEBRA'];
+const WORDS = [
+  'APPLE', 'BRICK', 'GHOST', 'LIGHT', 'PLANT', 'ROBOT', 'SMILE', 'TRACK', 'WATER', 'ZEBRA',
+  'ABOUT', 'ABOVE', 'BRAVE', 'BROWN', 'CHAIR', 'CHIEF', 'CHINA', 'CLEAN', 'CLEAR', 'CLIMB',
+  'CLOCK', 'CLOSE', 'CLOUD', 'COAST', 'DANCE', 'DEATH', 'DEPTH', 'DOUBT', 'DRAFT', 'DRAIN',
+  'DREAM', 'DRESS', 'DRINK', 'DRIVE', 'EARTH', 'EMPTY', 'ENEMY', 'ENTRY', 'EQUAL', 'ERROR',
+  'EVENT', 'FAITH', 'FALSE', 'FAULT', 'FIELD', 'FIGHT', 'FINAL', 'FIRST', 'FLEET', 'FLOOR',
+  'FOCUS', 'FORCE', 'FRAME', 'FRANK', 'FRESH', 'FRONT', 'FRUIT', 'GLASS', 'GRACE', 'GRADE',
+  'GRAND', 'GRANT', 'GRASS', 'GREAT', 'GREEN', 'GROSS', 'GROUP', 'GUARD', 'GUESS', 'GUIDE',
+  'HAPPY', 'HEART', 'HEAVY', 'HORSE', 'HOTEL', 'HOUSE', 'HUMAN', 'IMAGE', 'INDEX', 'INNER',
+  'ISSUE', 'JOINT', 'JUDGE', 'KNIFE', 'LARGE', 'LASER', 'LATER', 'LAUGH', 'LAYER', 'LEARN',
+  'LEASE', 'LEAST', 'LEAVE', 'LEGAL', 'LEVEL', 'LOGIC', 'LOOSE', 'LOWER', 'LUCKY', 'LUNCH',
+  'MAGIC', 'MAJOR', 'MAKER', 'MARCH', 'MATCH', 'METAL', 'MINOR', 'MINUS', 'MIXED', 'MODEL',
+  'MONEY', 'MONTH', 'MORAL', 'MOTOR', 'MOUNT', 'MOUSE', 'MOUTH', 'MUSIC', 'NIGHT', 'NOISE',
+  'NORTH', 'NOVEL', 'NURSE', 'OCEAN', 'OFFER', 'ORDER', 'OTHER', 'OUTER', 'OWNER', 'PAINT',
+  'PANEL', 'PAPER', 'PARTY', 'PEACE', 'PHASE', 'PHONE', 'PIECE', 'PILOT', 'PLACE', 'PLANE',
+  'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS', 'PRICE', 'PRIDE', 'PRIME', 'PRINT', 'PRIOR',
+  'PRIZE', 'PROOF', 'PROUD', 'PROVE', 'QUEEN', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE',
+  'RANGE', 'RAPID', 'RATIO', 'REACH', 'READY', 'REFER', 'RIGHT', 'RIVER', 'ROUND', 'ROUTE',
+  'ROYAL', 'RURAL', 'SCALE', 'SCENE', 'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHALL',
+  'SHAPE', 'SHARE', 'SHARP', 'SHEET', 'SHELF', 'SHELL', 'SHIFT', 'SHINE', 'SHIRT', 'SHOCK',
+  'SHOOT', 'SHORT', 'SIGHT', 'SILLY', 'SINCE', 'SIXTH', 'SIXTY', 'SKILL', 'SLEEP', 'SLIDE',
+  'SMALL', 'SMART', 'SOLID', 'SOLVE', 'SORRY', 'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPEAK',
+  'SPEED', 'SPEND', 'SPENT', 'SPLIT', 'SPOKE', 'SPORT', 'STAFF', 'STAGE', 'STAKE', 'STAND',
+  'START', 'STATE', 'STEAM', 'STEEL', 'STICK', 'STILL', 'STOCK', 'STONE', 'STOOD', 'STORE',
+  'STORM', 'STORY', 'STRIP', 'STUCK', 'STUDY', 'STUFF', 'STYLE', 'SWEET', 'TABLE', 'TAKEN',
+  'TASTE', 'TEACH', 'THANK', 'THEIR', 'THEME', 'THERE', 'THESE', 'THICK', 'THING', 'THINK',
+  'THIRD', 'THOSE', 'THREE', 'THREW', 'THROW', 'TIGHT', 'TITLE', 'TODAY', 'TOPIC', 'TOTAL',
+  'TOUCH', 'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT', 'TREND', 'TRIAL', 'TRIBE',
+  'TRICK', 'TRIED', 'TROOP', 'TRUCK', 'TRULY', 'TRUST', 'TRUTH', 'TWICE', 'UNDER', 'UNION',
+  'UNITY', 'UNTIL', 'UPPER', 'URBAN', 'USAGE', 'USUAL', 'VALID', 'VALUE', 'VIDEO', 'VIRUS',
+  'VISIT', 'VITAL', 'VOCAL', 'VOICE', 'WASTE', 'WATCH', 'WHEEL', 'WHERE', 'WHICH', 'WHILE',
+  'WHITE', 'WHOLE', 'WHOSE', 'WOMAN', 'WORLD', 'WORRY', 'WORSE', 'WORST', 'WORTH', 'WOULD',
+  'WOUND', 'WRITE', 'WRONG', 'WROTE', 'YOUNG', 'YOUTH'
+];
 
 const getRandomWord = () => WORDS[Math.floor(Math.random() * WORDS.length)];
 
@@ -36,7 +69,7 @@ const scoreGuess = (guess, solution) => {
 
 const Wordle = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
   const [solution, setSolution] = useState(getRandomWord);
   const [guesses, setGuesses] = useState([]); // { word, result }[]
   const [currentGuess, setCurrentGuess] = useState('');
@@ -49,11 +82,14 @@ const Wordle = () => {
     if (status !== 'playing') return;
 
     const guess = currentGuess.trim().toUpperCase();
-    if (guess.length !== 5) return;
+    if (guess.length !== 5) {
+      alert('Please enter exactly 5 letters.');
+      return;
+    }
 
-    if (!WORDS.includes(guess)) {
-      // Simple validation: require guess to be in list
-      alert('Please enter a valid 5-letter word from the game dictionary.');
+    // Allow any 5-letter word (removed strict dictionary check)
+    if (!/^[A-Z]{5}$/.test(guess)) {
+      alert('Please enter only letters.');
       return;
     }
 
@@ -82,16 +118,29 @@ const Wordle = () => {
 
   const boardRows = Array.from({ length: 6 }, (_, index) => guesses[index] || null);
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="wordle">
       <ThemeToggle />
       <div className="game-header">
         <button className="back-button" onClick={handleBackHome}>
-          10 Back
+          ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Wordle</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleReset} aria-label="Reset Wordle game">

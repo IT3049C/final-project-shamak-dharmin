@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './PatternLock.css';
 
 const PATTERNS = [
@@ -18,7 +18,7 @@ const getRandomPattern = () => {
 
 const PatternLock = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
 
   const [targetPattern, setTargetPattern] = useState(getRandomPattern);
   const [inputPattern, setInputPattern] = useState([]);
@@ -49,6 +49,10 @@ const PatternLock = () => {
   const isInTarget = (index) => targetPattern.includes(index);
   const isInInput = (index) => inputPattern.includes(index);
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="pattern-lock">
       <ThemeToggle />
@@ -56,9 +60,18 @@ const PatternLock = () => {
         <button className="back-button" onClick={handleBackHome}>
           ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Pattern Lock</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleNextPattern} aria-label="New pattern">

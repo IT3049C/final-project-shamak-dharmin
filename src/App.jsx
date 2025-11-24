@@ -8,6 +8,9 @@ import Wordle from './games/Wordle';
 import TypingSpeed from './games/TypingSpeed';
 import PrimeRush from './games/PrimeRush';
 import PatternLock from './games/PatternLock';
+import RockPaperScissors from './games/RockPaperScissors';
+import TicTacToe from './games/TicTacToe';
+import QuickDraw from './games/QuickDraw';
 import PlayerBanner from './components/PlayerBanner';
 import './App.css';
 
@@ -25,6 +28,9 @@ function App() {
             <Route path="/typing-speed" element={<TypingSpeed />} />
             <Route path="/prime-rush" element={<PrimeRush />} />
             <Route path="/pattern-lock" element={<PatternLock />} />
+            <Route path="/rock-paper-scissors" element={<RockPaperScissors />} />
+            <Route path="/tic-tac-toe" element={<TicTacToe />} />
+            <Route path="/quick-draw" element={<QuickDraw />} />
           </Routes>
         </Router>
       </PlayerProvider>

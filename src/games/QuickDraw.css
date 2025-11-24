@@ -1,0 +1,281 @@
+.quick-draw {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.quick-draw-main {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.mode-selection {
+  text-align: center;
+}
+
+.mode-selection h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.mode-button {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.5rem;
+  margin: 1rem auto;
+  font-size: 1.2rem;
+  background: var(--primary-color, #4a90e2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.mode-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.multiplayer-section {
+  margin-top: 3rem;
+}
+
+.join-room {
+  display: flex;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 1rem auto;
+}
+
+.join-room input {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.join-room button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background: var(--secondary-color, #27ae60);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.join-room button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lobby {
+  text-align: center;
+  padding: 2rem;
+}
+
+.lobby h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--accent-color, #e74c3c);
+}
+
+.players-list {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: var(--card-bg, #f8f9fa);
+  border-radius: 8px;
+}
+
+.player-item {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 4px;
+  font-size: 1.1rem;
+}
+
+.start-button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background: var(--success-color, #27ae60);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--card-bg, #f8f9fa);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.timer {
+  color: var(--success-color, #27ae60);
+  font-size: 1.5rem;
+}
+
+.timer.urgent {
+  color: var(--danger-color, #e74c3c);
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.challenge-area {
+  text-align: center;
+}
+
+.emoji-display {
+  font-size: 8rem;
+  margin: 2rem 0;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.question {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.option-button {
+  padding: 1.5rem;
+  font-size: 1.1rem;
+  border: 3px solid var(--border-color, #ddd);
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.option-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary-color, #4a90e2);
+}
+
+.option-button.selected {
+  background: var(--primary-color, #4a90e2);
+  color: white;
+  border-color: var(--primary-color, #4a90e2);
+}
+
+.option-button.correct {
+  background: var(--success-color, #27ae60);
+  color: white;
+  border-color: var(--success-color, #27ae60);
+}
+
+.option-button.incorrect {
+  background: var(--danger-color, #e74c3c);
+  color: white;
+  border-color: var(--danger-color, #e74c3c);
+}
+
+.option-button:disabled {
+  cursor: not-allowed;
+}
+
+.result-message {
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-message.correct {
+  background: #d4edda;
+  color: #155724;
+}
+
+.result-message.incorrect {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.game-over {
+  text-align: center;
+  padding: 3rem;
+}
+
+.game-over h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.final-score {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color, #4a90e2);
+  margin: 2rem 0;
+}
+
+.play-again-button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background: var(--primary-color, #4a90e2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.play-again-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .emoji-display {
+    font-size: 5rem;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .game-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarSelector from '../components/AvatarSelector';
 import ThemeToggle from '../components/ThemeToggle';
-import { usePlayer } from '../context/PlayerContext';
 import './PrimeRush.css';
 
 const getRandomNumber = () => Math.floor(Math.random() * 197) + 3; // 3-199
@@ -16,7 +16,7 @@ const isPrime = (n) => {
 
 const PrimeRush = () => {
   const navigate = useNavigate();
-  const { playerName } = usePlayer();
+  const [player, setPlayer] = useState(null);
 
   const [currentNumber, setCurrentNumber] = useState(getRandomNumber);
   const [score, setScore] = useState(0);
@@ -64,6 +64,10 @@ const PrimeRush = () => {
     setCurrentNumber(getRandomNumber());
   };
 
+  if (!player) {
+    return <AvatarSelector onSelect={setPlayer} />;
+  }
+
   return (
     <div className="prime-rush">
       <ThemeToggle />
@@ -71,9 +75,18 @@ const PrimeRush = () => {
         <button className="back-button" onClick={handleBackHome}>
           ← Back
         </button>
+        
+        <div className="player-info">
+          <img 
+            src={player.avatar.image} 
+            alt={player.avatar.name} 
+            className="player-avatar-img"
+          />
+          <span className="player-name">{player.name}</span>
+        </div>
+
         <div className="game-title">
           <h1>Prime Rush</h1>
-          {playerName && <p className="player-tag">Playing as {playerName}</p>}
         </div>
         <div className="game-controls">
           <button type="button" onClick={handleReset} aria-label="Reset Prime Rush game">
