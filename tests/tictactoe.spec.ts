@@ -3,6 +3,11 @@ import { test, expect } from '@playwright/test';
 test.describe('Tic Tac Toe Game', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/tic-tac-toe');
+    
+    // Handle avatar selection
+    await page.click('.avatar-option:first-child');
+    await page.fill('input[type="text"]', 'Test Player');
+    await page.click('button:has-text("Start Playing")');
   });
 
   test('loads the initial state of the game', async ({ page }) => {
@@ -77,20 +82,21 @@ test.describe('Tic Tac Toe Game', () => {
   test('detects a draw', async ({ page }) => {
     // Play a draw game
     // X O X
-    // X O O
+    // X O O  
     // O X X
-    await page.getByLabel(/square 1, empty/i).click(); // X
-    await page.getByLabel(/square 2, empty/i).click(); // O
-    await page.getByLabel(/square 3, empty/i).click(); // X
-    await page.getByLabel(/square 4, empty/i).click(); // X
-    await page.getByLabel(/square 5, empty/i).click(); // O
-    await page.getByLabel(/square 6, empty/i).click(); // O
-    await page.getByLabel(/square 7, empty/i).click(); // O
-    await page.getByLabel(/square 8, empty/i).click(); // X
-    await page.getByLabel(/square 9, empty/i).click(); // X
+    await page.getByLabel(/square 1, empty/i).click(); // X - pos 1
+    await page.getByLabel(/square 2, empty/i).click(); // O - pos 2
+    await page.getByLabel(/square 3, empty/i).click(); // X - pos 3
+    await page.getByLabel(/square 5, empty/i).click(); // O - pos 5
+    await page.getByLabel(/square 4, empty/i).click(); // X - pos 4
+    await page.getByLabel(/square 6, empty/i).click(); // O - pos 6
+    await page.getByLabel(/square 8, empty/i).click(); // X - pos 8
+    await page.getByLabel(/square 7, empty/i).click(); // O - pos 7
+    await page.getByLabel(/square 9, empty/i).click(); // X - pos 9
     
-    // Check for draw message
-    await expect(page.getByText(/it's a draw/i)).toBeVisible();
+    // Check for draw message with wait
+    await page.waitForTimeout(500); // Give time for state update
+    await expect(page.locator('.tictactoe-status')).toContainText("It's a draw");
   });
 
   test('prevents clicking on occupied squares', async ({ page }) => {

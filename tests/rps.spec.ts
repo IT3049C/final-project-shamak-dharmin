@@ -3,13 +3,18 @@ import { test, expect } from '@playwright/test';
 test.describe('Rock Paper Scissors Game', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/rock-paper-scissors');
+    
+    // Handle avatar selection
+    await page.click('.avatar-option:first-child');
+    await page.fill('input[type="text"]', 'Test Player');
+    await page.click('button:has-text("Start Playing")');
   });
 
   test('loads the initial state of the game', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /rock paper scissors/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /rock/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /paper/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /scissors/i })).toBeVisible();
+    await expect(page.locator('button:has-text("Rock")').first()).toBeVisible();
+    await expect(page.locator('button:has-text("Paper")').first()).toBeVisible();
+    await expect(page.locator('button:has-text("Scissors")').first()).toBeVisible();
     await expect(page.getByText(/make your move/i)).toBeVisible();
   });
 

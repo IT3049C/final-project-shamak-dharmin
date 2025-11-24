@@ -3,6 +3,11 @@ import { test, expect } from '@playwright/test';
 test.describe('Wordle Game', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/wordle');
+    
+    // Handle avatar selection
+    await page.click('.avatar-option:first-child');
+    await page.fill('input[type="text"]', 'Test Player');
+    await page.click('button:has-text("Start Playing")');
   });
 
   test('loads initial state of the game', async ({ page }) => {
@@ -27,7 +32,7 @@ test.describe('Wordle Game', () => {
     await input.fill('APPLE');
     await page.getByRole('button', { name: /guess/i }).click();
 
-    await page.getByRole('button', { name: /new game/i }).click();
+    await page.getByRole('button', { name: /reset wordle game/i }).click();
 
     await expect(page.locator('.wordle-row .correct, .wordle-row .present, .wordle-row .absent')).toHaveCount(0);
   });
