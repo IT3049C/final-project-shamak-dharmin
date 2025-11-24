@@ -18,7 +18,7 @@ function App() {
   return (
     <ThemeProvider>
       <PlayerProvider>
-        <Router>
+        <Router basename="/final-project-shamak-dharmin">
           <PlayerBanner />
           <Routes>
             <Route path="/" element={<Home />} />

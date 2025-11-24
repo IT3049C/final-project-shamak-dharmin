@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react()],
   server: { port: 5173, open: false },
   preview: { port: 5173 },
-  base: process.env.NODE_ENV === 'production' ? undefined : '/',
+  base: '/final-project-shamak-dharmin/',
 });
