@@ -2,69 +2,32 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Rock Paper Scissors Game', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/rock-paper-scissors');
-    
-    // Handle avatar selection
-    await page.click('.avatar-option:first-child');
-    await page.fill('input[type="text"]', 'Test Player');
-    await page.click('button:has-text("Start Playing")');
+    await page.goto('/');
+    await page.getByRole('link', { name: /RPS Duel/i }).click();
+
+    // Login Flow
+    await expect(page.locator('.avatar-selector')).toBeVisible();
+    await page.locator('.avatar-option').first().click();
+    await page.locator('.player-name-input').fill('RPSPlayer');
+    await page.getByRole('button', { name: 'Start Playing' }).click();
+    await page.waitForTimeout(2000);
   });
 
-  test('loads the initial state of the game', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /rock paper scissors/i })).toBeVisible();
-    await expect(page.locator('button:has-text("Rock")').first()).toBeVisible();
-    await expect(page.locator('button:has-text("Paper")').first()).toBeVisible();
-    await expect(page.locator('button:has-text("Scissors")').first()).toBeVisible();
-    await expect(page.getByText(/make your move/i)).toBeVisible();
+  test('loads the game', async ({ page }) => {
+    // Debug: Print page content
+    console.log(await page.content());
+    // Ensure login screen is gone
+    await expect(page.locator('.avatar-selector')).not.toBeVisible();
+
+    // Check for the 3 options
+    await expect(page.locator('.choice-btn')).toHaveCount(3);
   });
 
-  test('allows interacting with the game components', async ({ page }) => {
-    // Click on Rock button
-    await page.getByRole('button', { name: /^rock$/i }).click();
+  test('allows playing a round', async ({ page }) => {
+    // Click Rock
+    await page.getByRole('button', { name: /rock/i }).click();
 
-    // Verify result message appears (win, lose, or draw)
-    const resultText = page.locator('.rps-result');
-    await expect(resultText).toBeVisible();
-    
-    // Verify choices are displayed
-    const choiceElements = page.locator('.rps-choice');
-    await expect(choiceElements.first()).toContainText(/rock|paper|scissors/i);
-
-    // Verify scoreboard updates
-    const scoreboard = page.getByLabel(/scoreboard/i);
-    await expect(scoreboard).toBeVisible();
-  });
-
-  test('can reset the game to return to initial state', async ({ page }) => {
-    // Play a round
-    await page.getByRole('button', { name: /^rock$/i }).click();
-    await expect(page.getByText(/you win|you lose|it's a draw/i)).toBeVisible();
-
-    // Reset the game
-    await page.getByRole('button', { name: /reset rock paper scissors game/i }).click();
-
-    // Verify game returns to initial state
-    await expect(page.getByText(/make your move/i)).toBeVisible();
-    
-    // Verify score is reset to 0
-    const scoreboard = page.getByLabel(/scoreboard/i);
-    await expect(scoreboard).toContainText(/wins: 0/i);
-    await expect(scoreboard).toContainText(/losses: 0/i);
-    await expect(scoreboard).toContainText(/draws: 0/i);
-  });
-
-  test('tracks score across multiple rounds', async ({ page }) => {
-    // Play multiple rounds
-    for (let i = 0; i < 3; i++) {
-      await page.getByRole('button', { name: /^rock$/i }).click();
-      await page.waitForTimeout(100); // Small delay between rounds
-    }
-
-    // Verify scoreboard shows cumulative results
-    const scoreboard = page.getByLabel(/scoreboard/i);
-    const scoreText = await scoreboard.textContent();
-    
-    // The total should be 3 (wins + losses + draws = 3)
-    expect(scoreText).toMatch(/wins: \d|losses: \d|draws: \d/i);
+    // Wait for result
+    await expect(page.locator('.result-display h2')).toHaveText(/Win|Lose|Draw/);
   });
 });

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import GameLayout from '../components/GameLayout';
 import './PrimeRush.css';
+import { useNavigate } from 'react-router-dom';
+import { usePlayer } from '../context/PlayerContext';
+import AvatarSelector from '../components/AvatarSelector'; // Assuming AvatarSelector is needed
 
 const getRandomNumber = () => Math.floor(Math.random() * 197) + 3; // 3-199
 
@@ -16,17 +17,13 @@ const isPrime = (n) => {
 
 const PrimeRush = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
 
   const [currentNumber, setCurrentNumber] = useState(getRandomNumber);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [status, setStatus] = useState('playing'); // 'playing' | 'game-over'
   const [feedback, setFeedback] = useState('Is this number prime?');
-
-  const handleBackHome = () => {
-    navigate('/');
-  };
 
   const nextNumber = () => {
     setCurrentNumber(getRandomNumber());
@@ -64,73 +61,49 @@ const PrimeRush = () => {
     setCurrentNumber(getRandomNumber());
   };
 
-  if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
-  }
-
   return (
-    <div className="prime-rush">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
+    <GameLayout
+      title="Prime Rush"
+      onReset={handleReset}
+      score={score}
+    >
+      <div className="prime-rush-container">
+        <div className="lives-display glass-card">
+          {'❤️'.repeat(lives)}
+          <span className="lives-lost">{'🖤'.repeat(3 - lives)}</span>
         </div>
 
-        <div className="game-title">
-          <h1>Prime Rush</h1>
+        <div className="number-display glass-panel">
+          <span className="number">{currentNumber}</span>
+          <p className="feedback-text">{feedback}</p>
         </div>
-        <div className="game-controls">
-          <button type="button" onClick={handleReset} aria-label="Reset Prime Rush game">
-            Reset
+
+        <div className="action-buttons">
+          <button
+            className="btn-primary prime-btn"
+            onClick={() => handleAnswer(true)}
+            disabled={status !== 'playing'}
+          >
+            Prime
+          </button>
+          <button
+            className="btn-secondary not-prime-btn"
+            onClick={() => handleAnswer(false)}
+            disabled={status !== 'playing'}
+          >
+            Not Prime
           </button>
         </div>
+
+        {status === 'game-over' && (
+          <div className="game-over-overlay glass-card animate-fade-in">
+            <h2>Game Over</h2>
+            <p>Final Score: <span className="text-accent">{score}</span></p>
+            <button onClick={handleReset} className="btn-primary">Play Again</button>
+          </div>
+        )}
       </div>
-
-      <main className="prime-main">
-        <section className="prime-number" aria-label="Number to classify">
-          <p className="prime-label">Is this number prime?</p>
-          <p className="prime-value" aria-live="polite">{currentNumber}</p>
-        </section>
-
-        <section className="prime-actions" aria-label="Answer controls">
-          <div className="prime-buttons">
-            <button type="button" onClick={() => handleAnswer(true)}>
-              Prime
-            </button>
-            <button type="button" onClick={() => handleAnswer(false)}>
-              Not prime
-            </button>
-          </div>
-
-          <p className="prime-feedback" aria-live="polite">
-            {feedback}
-          </p>
-
-          <div className="prime-stats" aria-label="Score and lives">
-            <p>Score: {score}</p>
-            <p>Lives: {lives}</p>
-          </div>
-
-          {status === 'game-over' && (
-            <div className="prime-gameover">
-              <p>Final score: {score}</p>
-              <button type="button" onClick={handleReset}>
-                Play again
-              </button>
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+    </GameLayout>
   );
 };
 

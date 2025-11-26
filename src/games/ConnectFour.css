@@ -1,302 +1,86 @@
-/* Connect Four Game Container */
-.connect-four {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  padding: 2rem;
-  transition: background-color 0.3s ease;
-}
-
-/* Game Header */
-.connect-four .game-header {
-  max-width: 900px;
-  margin: 0 auto 2rem;
+.connect-four-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  background: var(--bg-secondary);
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px var(--shadow);
+  gap: var(--space-md);
 }
 
-.connect-four .back-button {
-  padding: 0.5rem 1rem;
-  background: var(--bg-card);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.connect-four .back-button:hover {
-  background: var(--card-hover);
-  border-color: var(--accent-primary);
-}
-
-.connect-four .player-avatar-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--accent-primary);
-}
-
-.connect-four .player-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.connect-four .player-info {
+.game-board {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--glass-shadow);
 }
 
-.connect-four .game-status {
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.connect-four .current-turn.player1,
-.connect-four .winner.player1 {
-  color: #ff6b6b;
-}
-
-.connect-four .current-turn.player2,
-.connect-four .winner.player2 {
-  color: #4ecdc4;
-}
-
-.connect-four .draw {
-  color: #95a5a6;
-}
-
-/* Game Board Container */
-.connect-four .game-board-container {
+.board-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 0;
-  width: 100%;
+  gap: 8px;
 }
 
-/* Game Board - Rounded Rectangle Container Flex Layout */
-.connect-four .game-board {
-  background: #2b6cb0; 
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column; 
-  gap: 10px;
-  width: fit-content;
-  overflow: hidden; 
-}
-
-/* Board Row -  */
-.connect-four .board-row {
-  display: flex;
-  gap: 10px; /* space between cells */
-}
-
-/* Cells - Circular slots darker holes */
-.connect-four .cell {
-  width: 70px;
-  height: 70px;
-  background: #1e2a35;
+.cell {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 50%;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transition: background-color 0.2s;
 }
 
-.connect-four .cell:hover {
-  background: #2a3844;
+.cell:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-/* Pieces */
-.connect-four .piece {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
+.piece {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
+  animation: dropIn 0.5s cubic-bezier(0.5, 0, 0.5, 1);
 }
 
-.connect-four .cell.player1 .piece {
-  background: radial-gradient(circle at 35% 35%, #ff8a8a, #ff5757);
-  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3),
-              0 4px 12px rgba(255, 87, 87, 0.5);
-  animation: c4-dropPiece 0.5s ease;
+.player1 .piece {
+  background: #ef4444;
+  /* Red */
+  box-shadow: inset 0 -4px 4px rgba(0, 0, 0, 0.3);
 }
 
-.connect-four .cell.player2 .piece {
-  background: radial-gradient(circle at 35% 35%, #6ef5e8, #4ecdc4);
-  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3),
-              0 4px 12px rgba(78, 205, 196, 0.5);
-  animation: c4-dropPiece 0.5s ease;
+.player2 .piece {
+  background: #22c55e;
+  /* Green */
+  box-shadow: inset 0 -4px 4px rgba(0, 0, 0, 0.3);
 }
 
-.connect-four .cell.winning .piece {
-  animation: c4-pulse 0.6s ease-in-out infinite alternate;
-  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3),
-              0 0 20px rgba(255, 255, 255, 0.8);
+.cell.winning {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: pulse 1.5s infinite;
 }
 
-@keyframes c4-dropPiece {
-  0% {
-    transform: translateY(-400px);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(10px);
-  }
-  80% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes c4-pulse {
+@keyframes dropIn {
   from {
-    transform: scale(1);
-    box-shadow: 0 0 0 rgba(255, 255, 255, 0.7);
+    transform: translateY(-300%);
   }
-  to {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
-  }
-}
 
-.connect-four .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: c4-fadeIn 0.3s ease;
-}
-
-.connect-four .win-modal {
-  background: var(--bg-secondary);
-  padding: 3rem;
-  border-radius: 16px;
-  text-align: center;
-  max-width: 400px;
-  animation: c4-slideUp 0.3s ease;
-}
-
-.connect-four .win-modal h2 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: var(--accent-primary);
-}
-
-.connect-four .modal-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.connect-four .modal-buttons button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.connect-four .modal-buttons button:first-child {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.connect-four .modal-buttons button:last-child {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
-}
-
-.connect-four .modal-buttons button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-@keyframes c4-fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes c4-slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
-@media (max-width: 768px) {
-  .connect-four {
-    padding: 1rem;
-  }
-  
-  .connect-four .game-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-    padding: 1rem;
-  }
-  
-  .connect-four .game-board {
-    gap: 8px;
-    padding: 15px;
-  }
-  
-  .connect-four .board-row {
-    gap: 8px;
-  }
-  
-  .connect-four .cell {
-    width: 50px;
-    height: 50px;
-  }
-}
-
-@media (max-width: 480px) {
-  .connect-four .game-board {
-    gap: 6px;
-    padding: 10px;
-  }
-  
-  .connect-four .board-row {
-    gap: 6px;
-  }
-  
-  .connect-four .cell {
+@media (max-width: 500px) {
+  .cell {
     width: 40px;
     height: 40px;
+  }
+
+  .game-board {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .board-row {
+    gap: 4px;
   }
 }

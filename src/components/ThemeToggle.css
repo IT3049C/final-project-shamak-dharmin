@@ -1,21 +1,24 @@
 .theme-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  /* position: fixed; Removed to allow flex layout */
+  /* top: 20px; */
+  /* right: 20px; */
+  width: 44px;
+  /* Slightly smaller to match other buttons */
+  height: 44px;
   border-radius: 50%;
-  border: none;
-  background: var(--toggle-bg);
+  border: 1px solid var(--glass-border);
+  /* Add border to match design system */
+  background: var(--glass-bg);
+  /* Use glass background */
   color: var(--text-primary);
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  box-shadow: var(--glass-shadow);
+  /* z-index: 1000; */
 }
 
 .theme-toggle:hover {

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { usePlayer } from '../context/PlayerContext';
 import './PatternLock.css';
 
 const PATTERNS = [
@@ -9,6 +10,9 @@ const PATTERNS = [
   [0, 3, 6, 7, 8],
   [2, 4, 6],
   [1, 4, 7, 3, 5],
+  [0, 4, 8, 5, 2],
+  [6, 7, 8, 5, 2],
+  [0, 1, 4, 7, 8],
 ];
 
 const getRandomPattern = () => {
@@ -18,15 +22,12 @@ const getRandomPattern = () => {
 
 const PatternLock = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
 
   const [targetPattern, setTargetPattern] = useState(getRandomPattern);
   const [inputPattern, setInputPattern] = useState([]);
   const [result, setResult] = useState('Memorize the pattern, then tap the dots in order.');
-
-  const handleBackHome = () => {
-    navigate('/');
-  };
+  const [score, setScore] = useState(0);
 
   const handleDotClick = (index) => {
     if (inputPattern.includes(index)) return; // prevent duplicates
@@ -36,7 +37,17 @@ const PatternLock = () => {
 
     if (next.length === targetPattern.length) {
       const isCorrect = next.every((value, i) => value === targetPattern[i]);
-      setResult(isCorrect ? '✅ Correct pattern!' : '❌ Wrong pattern.');
+      if (isCorrect) {
+        setResult('✅ Correct pattern!');
+        setScore(prev => prev + 1);
+        setTimeout(handleNextPattern, 1000);
+      } else {
+        setResult('❌ Wrong pattern.');
+        setTimeout(() => {
+          setInputPattern([]);
+          setResult('Try again!');
+        }, 1000);
+      }
     }
   };
 
@@ -46,70 +57,48 @@ const PatternLock = () => {
     setResult('Memorize the pattern, then tap the dots in order.');
   };
 
+  const handleReset = () => {
+    setScore(0);
+    handleNextPattern();
+  };
+
   const isInTarget = (index) => targetPattern.includes(index);
   const isInInput = (index) => inputPattern.includes(index);
 
-  if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
-  }
-
   return (
-    <div className="pattern-lock">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
+    <GameLayout
+      title="Pattern Lock"
+      onReset={handleReset}
+      score={score}
+    >
+      <div className="pattern-lock-container">
+        <div className="info-panel glass-card">
+          <p className="pattern-hint">
+            Pattern Length: <span className="text-accent">{targetPattern.length}</span>
+          </p>
+          <p className="pattern-status">{result}</p>
         </div>
 
-        <div className="game-title">
-          <h1>Pattern Lock</h1>
-        </div>
-        <div className="game-controls">
-          <button type="button" onClick={handleNextPattern} aria-label="New pattern">
-            New Pattern
-          </button>
+        <div className="pattern-grid glass-panel">
+          {Array.from({ length: 9 }).map((_, index) => {
+            // Only show target if input is empty (memorization phase)
+            // OR if the dot has been selected by user
+            const showTarget = inputPattern.length === 0 && isInTarget(index);
+            const isSelected = isInInput(index);
+
+            return (
+              <button
+                key={index}
+                type="button"
+                className={`dot ${showTarget ? 'target' : ''} ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleDotClick(index)}
+                aria-label={`Dot ${index + 1}`}
+              />
+            );
+          })}
         </div>
       </div>
-
-      <main className="pattern-main">
-        <section className="pattern-info" aria-label="Pattern instructions">
-          <p className="pattern-target">
-            Pattern length: <strong>{targetPattern.length}</strong>
-          </p>
-          <p className="pattern-hint">Dots that belong to the pattern are highlighted.</p>
-          <p className="pattern-result" aria-live="polite">
-            {result}
-          </p>
-        </section>
-
-        <section className="pattern-grid" aria-label="Pattern grid">
-          <div className="grid-3x3">
-            {Array.from({ length: 9 }).map((_, index) => {
-              const inTarget = isInTarget(index);
-              const inInput = isInInput(index);
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  className={`dot ${inTarget ? 'target' : ''} ${inInput ? 'selected' : ''}`}
-                  onClick={() => handleDotClick(index)}
-                  aria-label={`Dot ${index + 1}`}
-                />
-              );
-            })}
-          </div>
-        </section>
-      </main>
-    </div>
+    </GameLayout>
   );
 };
 

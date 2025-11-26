@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { usePlayer } from '../context/PlayerContext';
 import './TypingSpeed.css';
 
 const PHRASES = [
@@ -31,7 +32,7 @@ const getRandomPhrase = () => PHRASES[Math.floor(Math.random() * PHRASES.length)
 
 const TypingSpeed = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
   const [targetText, setTargetText] = useState(getRandomPhrase);
   const [input, setInput] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -44,10 +45,6 @@ const TypingSpeed = () => {
       setEndTime(Date.now());
     }
   }, [isComplete, startTime, endTime]);
-
-  const handleBackHome = () => {
-    navigate('/');
-  };
 
   const handleReset = () => {
     setTargetText(getRandomPhrase());
@@ -80,66 +77,50 @@ const TypingSpeed = () => {
     return input[index] === char ? 'correct' : 'incorrect';
   };
 
-  if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
-  }
-
   return (
-    <div className="typing-game">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
-        </div>
-
-        <div className="game-title">
-          <h1>Typing Speed Test</h1>
-        </div>
-        <div className="game-controls">
-          <button type="button" onClick={handleReset} aria-label="Reset typing game">
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <main className="typing-main">
-        <section className="typing-target" aria-label="Text to type">
+    <GameLayout
+      title="Typing Speed"
+      onReset={handleReset}
+      score={wpm || 0}
+    >
+      <div className="typing-container">
+        <div className="text-display glass-panel">
           {targetText.split('').map((char, index) => (
             <span key={index} className={`char ${getCharacterClass(char, index)}`}>
               {char}
             </span>
           ))}
-        </section>
+        </div>
 
-        <section className="typing-input" aria-label="Typing input">
-          <label htmlFor="typing-input">Start typing to begin the test</label>
+        <div className="input-area glass-card">
           <textarea
-            id="typing-input"
             value={input}
             onChange={handleChange}
-            rows={4}
+            placeholder="Start typing here..."
+            className="typing-input glass-input"
+            rows={3}
+            disabled={isComplete}
           />
+        </div>
 
-          <div className="typing-stats" aria-live="polite">
-            {durationSeconds && (
-              <p>
-                Time: {durationSeconds.toFixed(1)}s | WPM: {wpm}
-              </p>
-            )}
-            {isComplete && <p className="complete">Nice! You completed the challenge.</p>}
+        {isComplete && (
+          <div className="results-overlay glass-card animate-fade-in">
+            <h2>🎉 Completed!</h2>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <span className="label">Time</span>
+                <span className="value">{durationSeconds.toFixed(1)}s</span>
+              </div>
+              <div className="stat-item">
+                <span className="label">WPM</span>
+                <span className="value">{wpm}</span>
+              </div>
+            </div>
+            <button onClick={handleReset} className="btn-primary">Try Another</button>
           </div>
-        </section>
-      </main>
-    </div>
+        )}
+      </div>
+    </GameLayout>
   );
 };
 

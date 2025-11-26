@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { usePlayer } from '../context/PlayerContext';
 import './RockPaperScissors.css';
 
-const CHOICES = ['rock', 'paper', 'scissors'];
+const CHOICES = [
+  { id: 'rock', emoji: '✊', label: 'Rock' },
+  { id: 'paper', emoji: '✋', label: 'Paper' },
+  { id: 'scissors', emoji: '✌️', label: 'Scissors' }
+];
 
 const getResult = (player, cpu) => {
   if (player === cpu) return 'draw';
@@ -19,22 +24,18 @@ const getResult = (player, cpu) => {
 };
 
 const RockPaperScissors = () => {
-  const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const navigate = useNavigate(); // Added line
+  const { player, login } = usePlayer(); // Added line
   const [playerChoice, setPlayerChoice] = useState(null);
   const [cpuChoice, setCpuChoice] = useState(null);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState({ wins: 0, losses: 0, draws: 0 });
 
-  const handleBackHome = () => {
-    navigate('/');
-  };
+  const handlePlay = (choiceId) => {
+    const cpu = CHOICES[Math.floor(Math.random() * CHOICES.length)].id;
+    const outcome = getResult(choiceId, cpu);
 
-  const handlePlay = (choice) => {
-    const cpu = CHOICES[Math.floor(Math.random() * CHOICES.length)];
-    const outcome = getResult(choice, cpu);
-
-    setPlayerChoice(choice);
+    setPlayerChoice(choiceId);
     setCpuChoice(cpu);
     setResult(outcome);
 
@@ -52,84 +53,76 @@ const RockPaperScissors = () => {
     setScore({ wins: 0, losses: 0, draws: 0 });
   };
 
-  const resultMessage =
-    result === 'win'
-      ? 'You win!'
-      : result === 'lose'
-      ? 'You lose!'
-      : result === 'draw'
-      ? "It's a draw."
-      : 'Make your move!';
+  const getEmoji = (id) => CHOICES.find(c => c.id === id)?.emoji;
 
   if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
+    return <AvatarSelector onSelect={login} />;
   }
 
   return (
-    <div className="rps">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
+    <GameLayout
+      title="Rock Paper Scissors"
+      onReset={handleReset}
+    >
+      <div className="rps-container">
+        <div className="scoreboard glass-card">
+          <div className="score-item">
+            <span className="label">Wins</span>
+            <span className="value text-accent">{score.wins}</span>
+          </div>
+          <div className="score-item">
+            <span className="label">Draws</span>
+            <span className="value">{score.draws}</span>
+          </div>
+          <div className="score-item">
+            <span className="label">Losses</span>
+            <span className="value">{score.losses}</span>
+          </div>
         </div>
 
-        <div className="game-title">
-          <h1>Rock Paper Scissors</h1>
+        <div className="battle-arena glass-panel">
+          <div className="fighter">
+            <h3>You</h3>
+            <div className={`fighter-choice ${result === 'win' ? 'winner' : ''}`}>
+              {playerChoice ? getEmoji(playerChoice) : '❓'}
+            </div>
+          </div>
+
+          <div className="vs">VS</div>
+
+          <div className="fighter">
+            <h3>CPU</h3>
+            <div className={`fighter-choice ${result === 'lose' ? 'winner' : ''}`}>
+              {cpuChoice ? getEmoji(cpuChoice) : '❓'}
+            </div>
+          </div>
         </div>
-        <div className="game-controls">
-          <button type="button" onClick={handleReset} aria-label="Reset Rock Paper Scissors game">
-            Reset
-          </button>
+
+        <div className="result-display">
+          {result && (
+            <h2 className={`animate-fade-in ${result}`}>
+              {result === 'win' && '🎉 You Win!'}
+              {result === 'lose' && '💀 You Lose!'}
+              {result === 'draw' && '🤝 It\'s a Draw!'}
+            </h2>
+          )}
+          {!result && <h2>Choose your weapon</h2>}
+        </div>
+
+        <div className="choices-grid">
+          {CHOICES.map((choice) => (
+            <button
+              key={choice.id}
+              className={`choice-btn glass-card ${playerChoice === choice.id ? 'selected' : ''}`}
+              onClick={() => handlePlay(choice.id)}
+            >
+              <span className="emoji">{choice.emoji}</span>
+              <span className="label">{choice.label}</span>
+            </button>
+          ))}
         </div>
       </div>
-
-      <main className="rps-main">
-        <section className="rps-choices" aria-label="Your move">
-          <h2>Choose your move</h2>
-          <div className="rps-buttons">
-            {CHOICES.map((choice) => (
-              <button
-                key={choice}
-                type="button"
-                onClick={() => handlePlay(choice)}
-                className={playerChoice === choice ? 'selected' : ''}
-              >
-                {choice.charAt(0).toUpperCase() + choice.slice(1)}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="rps-status" aria-label="Game status">
-          <p className="rps-result">{resultMessage}</p>
-          <div className="rps-round">
-            <div>
-              <h3>You</h3>
-              <p className="rps-choice">{playerChoice ?? '-'}</p>
-            </div>
-            <div>
-              <h3>Computer</h3>
-              <p className="rps-choice">{cpuChoice ?? '-'}</p>
-            </div>
-          </div>
-
-          <div className="rps-score" aria-label="Scoreboard">
-            <p>Wins: {score.wins}</p>
-            <p>Losses: {score.losses}</p>
-            <p>Draws: {score.draws}</p>
-          </div>
-        </section>
-      </main>
-    </div>
+    </GameLayout>
   );
 };
 

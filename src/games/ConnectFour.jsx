@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { useNavigate } from 'react-router-dom'; // Assuming useNavigate is from react-router-dom
+import GameLayout from '../components/GameLayout';
+import AvatarSelector from '../components/AvatarSelector'; // Assuming AvatarSelector is a component
+import { usePlayer } from '../context/PlayerContext'; // Assuming usePlayer is a custom hook
 import './ConnectFour.css';
 
 const ROWS = 6;
@@ -9,19 +10,17 @@ const COLS = 7;
 
 const ConnectFour = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
   const [board, setBoard] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(1); // 1 or 2
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
   const [winningCells, setWinningCells] = useState([]);
 
-  // Initialize board when player is selected
+  // Initialize board on mount
   useEffect(() => {
-    if (player) {
-      initializeGame();
-    }
-  }, [player]);
+    initializeGame();
+  }, []);
 
   const initializeGame = () => {
     const emptyBoard = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
@@ -51,7 +50,7 @@ const ConnectFour = () => {
 
     for (const { dr, dc } of directions) {
       const cells = [[row, col]];
-      
+
       // Check in positive direction
       for (let i = 1; i < 4; i++) {
         const r = row + dr * i;
@@ -62,7 +61,7 @@ const ConnectFour = () => {
           break;
         }
       }
-      
+
       // Check in negative direction
       for (let i = 1; i < 4; i++) {
         const r = row - dr * i;
@@ -73,26 +72,26 @@ const ConnectFour = () => {
           break;
         }
       }
-      
+
       if (cells.length >= 4) {
         return cells;
       }
     }
-    
+
     return null;
   };
 
   const handleColumnClick = (col) => {
     if (gameOver) return;
-    
+
     const row = findLowestRow(col);
     if (row === -1) return; // Column full
-    
+
     // Update board
     const newBoard = board.map(r => [...r]);
     newBoard[row][col] = currentPlayer;
     setBoard(newBoard);
-    
+
     // Check for win
     const winCells = checkWin(row, col, currentPlayer);
     if (winCells) {
@@ -101,7 +100,7 @@ const ConnectFour = () => {
       setWinningCells(winCells);
       return;
     }
-    
+
     // Check for draw
     const isBoardFull = newBoard[0].every(cell => cell !== 0);
     if (isBoardFull) {
@@ -109,17 +108,9 @@ const ConnectFour = () => {
       setWinner('draw');
       return;
     }
-    
+
     // Switch player
     setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
-  };
-
-  const handleReset = () => {
-    initializeGame();
-  };
-
-  const handleBackHome = () => {
-    navigate('/');
   };
 
   const isWinningCell = (row, col) => {
@@ -127,58 +118,33 @@ const ConnectFour = () => {
   };
 
   if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
+    return <AvatarSelector onSelect={login} />;
   }
 
-  // Ensure board is initialized
-  if (board.length === 0) {
-    return <div className="connect-four">Loading...</div>;
-  }
+  if (board.length === 0) return null;
+
+  const statusText = gameOver
+    ? (winner === 'draw' ? "It's a Draw!" : `Player ${winner} Wins!`)
+    : `Player ${currentPlayer}'s Turn`;
 
   return (
-    <div className="connect-four">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
+    <GameLayout
+      title="Connect Four"
+      onReset={initializeGame}
+    >
+      <div className="connect-four-container">
+        <div className={`status-badge glass-card ${gameOver ? 'game-over' : ''}`}>
+          {statusText}
         </div>
 
-        <div className="game-status">
-          {!gameOver && (
-            <span className={`current-turn player${currentPlayer}`}>
-              Player {currentPlayer}'s Turn
-            </span>
-          )}
-          {gameOver && winner === 'draw' && (
-            <span className="draw">It's a Draw!</span>
-          )}
-          {gameOver && winner !== 'draw' && (
-            <span className={`winner player${winner}`}>
-              Player {winner} Wins!
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="game-board-container">
-        <div className="game-board">
+        <div className="game-board glass-panel">
           {board.map((row, rowIndex) => (
             <div key={rowIndex} className="board-row">
               {row.map((cell, colIndex) => (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className={`cell ${cell !== 0 ? `player${cell}` : ''} ${
-                    isWinningCell(rowIndex, colIndex) ? 'winning' : ''
-                  }`}
+                  className={`cell ${cell !== 0 ? `player${cell}` : ''} ${isWinningCell(rowIndex, colIndex) ? 'winning' : ''
+                    }`}
                   onClick={() => handleColumnClick(colIndex)}
                 >
                   {cell !== 0 && <div className="piece"></div>}
@@ -188,21 +154,7 @@ const ConnectFour = () => {
           ))}
         </div>
       </div>
-
-      {gameOver && (
-        <div className="modal-overlay">
-          <div className="win-modal">
-            <h2>
-              {winner === 'draw' ? '🤝 Draw!' : `🎉 Player ${winner} Wins!`}
-            </h2>
-            <div className="modal-buttons">
-              <button onClick={handleReset}>Play Again</button>
-              <button onClick={handleBackHome}>Back to Home</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </GameLayout>
   );
 };
 

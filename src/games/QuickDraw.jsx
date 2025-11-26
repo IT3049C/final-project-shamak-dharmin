@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { usePlayer } from '../context/PlayerContext';
+import GameLayout from '../components/GameLayout';
 import './QuickDraw.css';
 
 const ALL_CHALLENGES = [
@@ -48,11 +49,11 @@ const shuffleArray = (array) => {
 
 const QuickDraw = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
   const [gameMode, setGameMode] = useState(null); // 'single' or 'multi'
   const [roomCode, setRoomCode] = useState('');
   const [isHost, setIsHost] = useState(false);
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState([]); // This state now holds ALL players in a multiplayer game
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [scores, setScores] = useState({});
@@ -79,15 +80,11 @@ const QuickDraw = () => {
     }
   }, [gameStarted, shuffledChallenges]);
 
-  const handleBackHome = () => {
-    navigate('/');
-  };
-
   const startSinglePlayer = () => {
     setGameMode('single');
     setIsHost(true);
-    setPlayers([{ name: player.name, avatar: player.avatar, id: 'player1' }]);
-    setScores({ player1: 0 });
+    setPlayers([player]); // Use the player from the hook
+    setScores({ [player.id]: 0 }); // Initialize score for the current player
     setShuffledChallenges(shuffleArray(ALL_CHALLENGES));
     setGameStarted(true);
     setChallengeIndex(0);
@@ -99,21 +96,19 @@ const QuickDraw = () => {
     setRoomCode(code);
     setGameMode('multi');
     setIsHost(true);
-    setPlayers([{ name: player.name, avatar: player.avatar, id: 'host' }]);
-    setScores({ host: 0 });
+    setPlayers([player]); // Host is the current player
+    setScores({ [player.id]: 0 }); // Initialize score for the host
   };
 
   const joinMultiplayerRoom = () => {
     if (roomCode.trim()) {
       setGameMode('multi');
       setIsHost(false);
-      const playerId = 'player_' + Date.now();
-      setPlayers([
-        { name: 'Host', avatar: player.avatar, id: 'host' },
-        { name: player.name, avatar: player.avatar, id: playerId }
-      ]);
-      setScores({ host: 0, [playerId]: 0 });
-      alert(`Joined room: ${roomCode}`);
+      // In a real multiplayer game, you'd send 'player' to the host
+      // For this local simulation, we add the current player to the list
+      setPlayers(prevPlayers => [...prevPlayers, player]);
+      setScores(prevScores => ({ ...prevScores, [player.id]: 0 }));
+      alert(`Joined room: ${roomCode} `);
     }
   };
 
@@ -146,7 +141,7 @@ const QuickDraw = () => {
       const points = timeLeft * 10;
       setScores(prev => ({
         ...prev,
-        [players[0].id]: (prev[players[0].id] || 0) + points
+        [player.id]: (prev[player.id] || 0) + points // Update score for the current player
       }));
     }
 
@@ -168,209 +163,155 @@ const QuickDraw = () => {
 
   const endGame = () => {
     setGameStarted(false);
-    alert(`Game Over! Final Score: ${scores[players[0].id] || 0}`);
   };
 
   const resetGame = () => {
     setChallengeIndex(0);
     setRound(1);
-    setScores({ [players[0].id]: 0 });
+    setScores({ [player.id]: 0 }); // Reset score for the current player
     setGameStarted(false);
     setCurrentChallenge(null);
     setShuffledChallenges(shuffleArray(ALL_CHALLENGES));
+    setGameMode(null);
   };
 
+  // Mode Selection View
   if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
+    return <AvatarSelector onSelect={login} />;
   }
-
   if (!gameMode) {
     return (
-      <div className="quick-draw">
-        <ThemeToggle />
-        <div className="game-header">
-          <button className="back-button" onClick={handleBackHome}>
-            ← Back
-          </button>
-          
-          <div className="player-info">
-            <img 
-              src={player.avatar.image} 
-              alt={player.avatar.name} 
-              className="player-avatar-img"
-            />
-            <span className="player-name">{player.name}</span>
-          </div>
-
-          <div className="game-title">
-            <h1>Quick Draw</h1>
-          </div>
-        </div>
-
-        <main className="quick-draw-main">
-          <div className="mode-selection">
+      <GameLayout title="Quick Draw">
+        <div className="quick-draw-container">
+          <div className="mode-selection glass-panel">
             <h2>Choose Game Mode</h2>
-            <button className="mode-button" onClick={startSinglePlayer}>
-              🎮 Single Player
-            </button>
-            
-            <div className="multiplayer-section">
-              <button className="mode-button" onClick={createMultiplayerRoom}>
-                🌐 Create Multiplayer Room
+            <div className="mode-buttons">
+              <button className="btn-primary mode-btn" onClick={startSinglePlayer}>
+                <span className="icon">🎮</span> Single Player
               </button>
-              
-              <div className="join-room">
-                <input
-                  type="text"
-                  placeholder="Enter room code"
-                  value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                  maxLength={6}
-                />
-                <button onClick={joinMultiplayerRoom} disabled={!roomCode.trim()}>
-                  Join Room
+
+              <div className="divider">OR</div>
+
+              <div className="multiplayer-section glass-card">
+                <button className="btn-secondary mode-btn" onClick={createMultiplayerRoom}>
+                  <span className="icon">🌐</span> Create Room
                 </button>
+
+                <div className="join-room">
+                  <input
+                    type="text"
+                    placeholder="ROOM CODE"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                    maxLength={6}
+                    className="glass-input"
+                  />
+                  <button
+                    className="btn-primary"
+                    onClick={joinMultiplayerRoom}
+                    disabled={!roomCode.trim()}
+                  >
+                    Join
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </GameLayout>
     );
   }
 
+  // Lobby View
   if (gameMode === 'multi' && !gameStarted) {
     return (
-      <div className="quick-draw">
-        <ThemeToggle />
-        <div className="game-header">
-          <button className="back-button" onClick={() => setGameMode(null)}>
-            ← Back
-          </button>
-          
-          <div className="player-info">
-            <img 
-              src={player.avatar.image} 
-              alt={player.avatar.name} 
-              className="player-avatar-img"
-            />
-            <span className="player-name">{player.name}</span>
-          </div>
+      <GameLayout title="Quick Draw Lobby" onReset={() => setGameMode(null)}>
+        <div className="quick-draw-container">
+          <div className="lobby glass-panel">
+            <div className="room-code-display">
+              <span className="label">Room Code</span>
+              <span className="code text-accent">{roomCode}</span>
+            </div>
 
-          <div className="game-title">
-            <h1>Quick Draw - Lobby</h1>
-          </div>
-        </div>
-
-        <main className="quick-draw-main">
-          <div className="lobby">
-            <h2>Room Code: {roomCode}</h2>
-            <p>Share this code with friends to join!</p>
-            
-            <div className="players-list">
+            <div className="players-list glass-card">
               <h3>Players ({players.length})</h3>
               {players.map(p => (
                 <div key={p.id} className="player-item">
+                  <span className="avatar">👤</span>
                   <span>{p.name}</span>
                 </div>
               ))}
             </div>
 
-            {isHost && (
-              <button className="start-button" onClick={startGame}>
+            {isHost ? (
+              <button className="btn-primary start-btn" onClick={startGame}>
                 Start Game
               </button>
+            ) : (
+              <p className="waiting-text">Waiting for host to start...</p>
             )}
-            {!isHost && <p>Waiting for host to start...</p>}
           </div>
-        </main>
-      </div>
+        </div>
+      </GameLayout>
     );
   }
 
+  // Game View
   return (
-    <div className="quick-draw">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
-        </div>
-
-        <div className="game-controls">
-          <button type="button" onClick={resetGame} aria-label="Reset Quick Draw game">
-            New Game
-          </button>
-        </div>
-      </div>
-
-      <main className="quick-draw-main">
-        <div className="game-info">
+    <GameLayout
+      title="Quick Draw"
+      onReset={resetGame}
+      score={scores[players[0].id] || 0}
+    >
+      <div className="quick-draw-container">
+        <div className="game-status-bar glass-card">
           <div className="round-info">Round {round}/{maxRounds}</div>
-          <div className="score-info">Score: {scores[players[0].id] || 0}</div>
-          <div className={`timer ${timeLeft <= 3 ? 'urgent' : ''}`}>
+          <div className={`timer ${timeLeft <= 3 ? 'urgent' : ''} `}>
             Time: {timeLeft}s
           </div>
         </div>
 
-        {currentChallenge && (
-          <div className="challenge-area">
+        {currentChallenge ? (
+          <div className="challenge-area glass-panel">
             <div className="emoji-display">
               {currentChallenge.emoji}
             </div>
             <p className="question">What is this?</p>
-            
+
             <div className="options-grid">
-              {currentChallenge.options.map((option) => (
-                <button
-                  key={option}
-                  className={`option-button ${
-                    showResult
-                      ? option === currentChallenge.correct
-                        ? 'correct'
-                        : option === selectedAnswer
-                        ? 'incorrect'
-                        : ''
-                      : selectedAnswer === option
-                      ? 'selected'
-                      : ''
-                  }`}
-                  onClick={() => handleAnswer(option)}
-                  disabled={showResult}
-                >
-                  {option}
-                </button>
-              ))}
+              {currentChallenge.options.map((option) => {
+                let stateClass = '';
+                if (showResult) {
+                  if (option === currentChallenge.correct) stateClass = 'correct';
+                  else if (option === selectedAnswer) stateClass = 'incorrect';
+                } else if (selectedAnswer === option) {
+                  stateClass = 'selected';
+                }
+
+                return (
+                  <button
+                    key={option}
+                    className={`option-btn glass-card ${stateClass}`}
+                    onClick={() => handleAnswer(option)}
+                    disabled={showResult}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
-
-            {showResult && (
-              <div className={`result-message ${selectedAnswer === currentChallenge.correct ? 'correct' : 'incorrect'}`}>
-                {selectedAnswer === currentChallenge.correct
-                  ? `✅ Correct! +${timeLeft * 10} points`
-                  : `❌ Wrong! Correct answer: ${currentChallenge.correct}`}
-              </div>
-            )}
           </div>
-        )}
-
-        {!currentChallenge && challengeIndex >= maxRounds && (
-          <div className="game-over">
+        ) : (
+          <div className="game-over glass-panel animate-fade-in">
             <h2>🎉 Game Complete!</h2>
-            <p className="final-score">Final Score: {scores[players[0].id] || 0}</p>
-            <button className="play-again-button" onClick={resetGame}>
+            <p className="final-score">Final Score: <span className="text-accent">{scores[players[0].id] || 0}</span></p>
+            <button className="btn-primary" onClick={resetGame}>
               Play Again
             </button>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </GameLayout>
   );
 };
 

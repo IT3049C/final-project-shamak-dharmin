@@ -1,72 +1,79 @@
-.pattern-lock {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  padding: 1.5rem;
+.pattern-lock-container {
   display: flex;
   flex-direction: column;
-}
-
-.pattern-lock .game-header {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
+  gap: var(--space-md);
 }
 
-.pattern-lock .game-title h1 {
-  margin: 0;
+.info-panel {
+  padding: var(--space-md);
+  text-align: center;
+  min-width: 300px;
 }
 
-.pattern-lock .player-tag {
-  margin-top: 0.25rem;
-  font-size: 0.9rem;
+.pattern-status {
+  margin-top: var(--space-xs);
   color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
-.pattern-main {
-  display: grid;
-  grid-template-columns: minmax(260px, 1.2fr) minmax(260px, 1fr);
-  gap: 2rem;
-  justify-content: center;
-}
-
-.pattern-info,
 .pattern-grid {
-  padding: 1.5rem;
-  border-radius: 16px;
-  background: var(--bg-secondary);
-  box-shadow: 0 4px 20px var(--shadow);
-}
-
-.pattern-result {
-  margin-top: 0.75rem;
-}
-
-.grid-3x3 {
   display: grid;
-  grid-template-columns: repeat(3, 80px);
-  grid-template-rows: repeat(3, 80px);
-  gap: 1rem;
-  justify-content: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
 }
 
 .dot {
-  width: 64px;
-  height: 64px;
-  border-radius: 999px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
 }
 
 .dot.target {
-  box-shadow: 0 0 0 2px var(--accent-secondary);
+  background: var(--text-accent);
+  box-shadow: 0 0 20px var(--text-accent);
+  animation: pulse 2s infinite;
 }
 
 .dot.selected {
-  background: var(--accent-primary);
-  color: #fff;
+  background: var(--gradient-primary);
+  border-color: white;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
 }
 
-@media (max-width: 768px) {
-  .pattern-main {
-    grid-template-columns: 1fr;
+.dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+@media (max-width: 400px) {
+  .pattern-grid {
+    gap: var(--space-md);
+    padding: var(--space-lg);
+  }
+
+  .dot {
+    width: 50px;
+    height: 50px;
   }
 }

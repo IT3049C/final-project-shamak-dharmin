@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 import AvatarSelector from '../components/AvatarSelector';
-import ThemeToggle from '../components/ThemeToggle';
+import { usePlayer } from '../context/PlayerContext';
 import './Wordle.css';
 
 const WORDS = [
@@ -69,13 +70,17 @@ const scoreGuess = (guess, solution) => {
 
 const Wordle = () => {
   const navigate = useNavigate();
-  const [player, setPlayer] = useState(null);
+  const { player, login } = usePlayer();
   const [solution, setSolution] = useState(getRandomWord);
   const [guesses, setGuesses] = useState([]); // { word, result }[]
   const [currentGuess, setCurrentGuess] = useState('');
   const [status, setStatus] = useState('playing'); // 'playing' | 'won' | 'lost'
 
   const remainingGuesses = useMemo(() => 6 - guesses.length, [guesses.length]);
+
+  if (!player) {
+    return <AvatarSelector onSelect={login} />;
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -87,7 +92,6 @@ const Wordle = () => {
       return;
     }
 
-    // Allow any 5-letter word (removed strict dictionary check)
     if (!/^[A-Z]{5}$/.test(guess)) {
       alert('Please enter only letters.');
       return;
@@ -112,50 +116,17 @@ const Wordle = () => {
     setStatus('playing');
   };
 
-  const handleBackHome = () => {
-    navigate('/');
-  };
-
   const boardRows = Array.from({ length: 6 }, (_, index) => guesses[index] || null);
 
-  if (!player) {
-    return <AvatarSelector onSelect={setPlayer} />;
-  }
-
   return (
-    <div className="wordle">
-      <ThemeToggle />
-      <div className="game-header">
-        <button className="back-button" onClick={handleBackHome}>
-          ← Back
-        </button>
-        
-        <div className="player-info">
-          <img 
-            src={player.avatar.image} 
-            alt={player.avatar.name} 
-            className="player-avatar-img"
-          />
-          <span className="player-name">{player.name}</span>
-        </div>
-
-        <div className="game-title">
-          <h1>Wordle</h1>
-        </div>
-        <div className="game-controls">
-          <button type="button" onClick={handleReset} aria-label="Reset Wordle game">
-            New Game
-          </button>
-        </div>
-      </div>
-
-      <main className="wordle-main">
-        <section
-          className="wordle-board"
-          aria-label="Wordle board"
-        >
+    <GameLayout
+      title="Wordle"
+      onReset={handleReset}
+    >
+      <div className="wordle-container">
+        <div className="wordle-board glass-panel">
           {boardRows.map((row, rowIndex) => (
-            <div key={rowIndex} className="wordle-row" role="row">
+            <div key={rowIndex} className="wordle-row">
               {Array.from({ length: 5 }).map((_, colIndex) => {
                 const letter = row?.word[colIndex] ?? '';
                 const state = row?.result[colIndex] ?? '';
@@ -163,8 +134,6 @@ const Wordle = () => {
                   <div
                     key={colIndex}
                     className={`wordle-cell ${state}`}
-                    role="gridcell"
-                    aria-label={letter ? `${letter} ${state}` : 'empty cell'}
                   >
                     {letter}
                   </div>
@@ -172,34 +141,41 @@ const Wordle = () => {
               })}
             </div>
           ))}
-        </section>
+        </div>
 
-        <section className="wordle-input" aria-label="Wordle input">
+        <div className="wordle-controls glass-card">
           <form onSubmit={handleSubmit} className="wordle-form">
-            <label htmlFor="guess-input">Enter a 5-letter word</label>
-            <div className="wordle-form-row">
-              <input
-                id="guess-input"
-                type="text"
-                maxLength={5}
-                value={currentGuess}
-                onChange={(event) => setCurrentGuess(event.target.value)}
-                autoComplete="off"
-              />
-              <button type="submit" disabled={status !== 'playing' || guesses.length >= 6}>
-                Guess
-              </button>
-            </div>
+            <input
+              type="text"
+              maxLength={5}
+              value={currentGuess}
+              onChange={(event) => setCurrentGuess(event.target.value)}
+              placeholder="Enter 5-letter word"
+              className="wordle-input glass-input"
+              autoFocus
+              disabled={status !== 'playing'}
+            />
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={status !== 'playing' || currentGuess.length !== 5}
+            >
+              Guess
+            </button>
           </form>
 
-          <p className="wordle-status" aria-live="polite">
-            {status === 'playing' && `You have ${remainingGuesses} guesses remaining.`}
-            {status === 'won' && 'Nice job! You guessed the word!'}
-            {status === 'lost' && `Out of guesses. The word was ${solution}.`}
-          </p>
-        </section>
-      </main>
-    </div>
+          <div className="status-message">
+            {status === 'playing' && `${remainingGuesses} guesses left`}
+            {status === 'won' && <span className="text-accent">You Won! 🎉</span>}
+            {status === 'lost' && (
+              <span>
+                Game Over. Word was <span className="text-accent">{solution}</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </GameLayout>
   );
 };
 
