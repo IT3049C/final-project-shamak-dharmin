@@ -1,0 +1,77 @@
+.tictactoe-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.status-badge {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  text-align: center;
+  min-width: 300px;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.square:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
+}
+
+.square.filled {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.square.winner {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .square {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+}

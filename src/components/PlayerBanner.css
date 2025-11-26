@@ -1,0 +1,24 @@
+.player-banner {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 20;
+  font-size: 0.9rem;
+}
+
+.player-banner-label {
+  opacity: 0.8;
+}
+
+.player-banner-name {
+  font-weight: 600;
+  color: var(--accent-primary);
+}

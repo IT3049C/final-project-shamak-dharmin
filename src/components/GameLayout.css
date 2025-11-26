@@ -1,0 +1,128 @@
+.game-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-md);
+    gap: var(--space-md);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-md);
+    flex: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    flex: 1;
+    min-width: max-content;
+    /* Ensure content doesn't wrap awkwardly */
+}
+
+.header-center {
+    flex: 2;
+    text-align: center;
+}
+
+.game-title {
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.player-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.avatar-mini {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 400px;
+}
+
+.game-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.game-controls {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.score-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+        gap: var(--space-sm);
+        padding: var(--space-sm);
+    }
+
+    .header-center {
+        order: -1;
+        width: 100%;
+    }
+
+    .game-title {
+        font-size: 1.5rem;
+    }
+
+    .game-footer {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+}
