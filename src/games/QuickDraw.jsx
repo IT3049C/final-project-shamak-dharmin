@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import { usePlayer } from '../context/PlayerContext';
+import { useGameRoom } from '../hooks/useGameRoom';
 import GameLayout from '../components/GameLayout';
 import './QuickDraw.css';
 
@@ -48,137 +47,192 @@ const shuffleArray = (array) => {
 };
 
 const QuickDraw = () => {
-  const navigate = useNavigate();
   const { player, login } = usePlayer();
+  const {
+    roomId,
+    gameState,
+    createRoom,
+    joinRoom,
+    updateGameState,
+    resetRoom,
+    error: roomError,
+    isLoading
+  } = useGameRoom();
+
   const [gameMode, setGameMode] = useState(null); // 'single' or 'multi'
-  const [roomCode, setRoomCode] = useState('');
-  const [isHost, setIsHost] = useState(false);
-  const [players, setPlayers] = useState([]); // This state now holds ALL players in a multiplayer game
-  const [currentChallenge, setCurrentChallenge] = useState(null);
-  const [challengeIndex, setChallengeIndex] = useState(0);
-  const [scores, setScores] = useState({});
-  const [gameStarted, setGameStarted] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(false);
+  const [inputRoomCode, setInputRoomCode] = useState('');
+
+  // Local state for single player or optimistic UI
+  const [localSelectedAnswer, setLocalSelectedAnswer] = useState(null);
+  const [localShowResult, setLocalShowResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
-  const [round, setRound] = useState(1);
-  const [shuffledChallenges, setShuffledChallenges] = useState([]);
+  const [singlePlayerState, setSinglePlayerState] = useState(null);
+
+  // Unified State Access
+  const activeState = gameMode === 'single' ? singlePlayerState : gameState;
+
+  // Re-derive values from activeState
+  const activePlayers = activeState?.players || (player ? [player] : []);
+  const activeScores = activeState?.scores || {};
+  const activeChallenge = activeState?.currentChallenge;
+  const activeStatus = activeState?.status;
+  const activeRound = activeState?.round || 1;
+  const activeIsHost = gameMode === 'single' ? true : (activeState?.hostId === player?.id);
   const maxRounds = 5;
 
+  // If single player, we need to mimic the "updateGameState"
+  const updateSinglePlayerState = useCallback((newState) => {
+    setSinglePlayerState(newState);
+    return Promise.resolve(); // Mimic async
+  }, []);
+
+  // Override handlers for single player
+  const effectiveUpdateState = gameMode === 'single' ? updateSinglePlayerState : updateGameState;
+
+  const nextRound = useCallback(async () => {
+    if (!activeState) return;
+    const nextRoundNum = activeState.round + 1;
+    if (nextRoundNum > maxRounds) {
+      await effectiveUpdateState({
+        ...activeState,
+        status: 'finished',
+        currentChallenge: null
+      });
+    } else {
+      const nextChallenge = activeState.challenges[nextRoundNum - 1];
+      await effectiveUpdateState({
+        ...activeState,
+        round: nextRoundNum,
+        currentChallenge: nextChallenge
+      });
+    }
+  }, [activeState, effectiveUpdateState, maxRounds]);
+
+  const handleTimeout = useCallback(() => {
+    setLocalShowResult(true);
+    if (activeIsHost) {
+      setTimeout(() => {
+        nextRound();
+      }, 2000);
+    }
+  }, [activeIsHost, nextRound]);
+
+  // Timer Logic (Host only for multiplayer, or local for single)
   useEffect(() => {
-    if (gameStarted && timeLeft > 0 && !showResult) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    const gameStarted = activeStatus === 'playing';
+    if (gameStarted && timeLeft > 0 && !localShowResult) {
+      const timer = setTimeout(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !showResult) {
+    } else if (timeLeft === 0 && !localShowResult && gameStarted) {
       handleTimeout();
     }
-  }, [timeLeft, gameStarted, showResult]);
+  }, [timeLeft, activeStatus, localShowResult, handleTimeout]);
 
+  // Sync timer start when new challenge appears
   useEffect(() => {
-    if (gameStarted && shuffledChallenges.length > 0 && !currentChallenge) {
-      startNewRound();
+    if (activeChallenge) {
+      setTimeLeft(10);
+      setLocalSelectedAnswer(null);
+      setLocalShowResult(false);
     }
-  }, [gameStarted, shuffledChallenges]);
+  }, [activeChallenge]);
 
   const startSinglePlayer = () => {
     setGameMode('single');
-    setIsHost(true);
-    setPlayers([player]); // Use the player from the hook
-    setScores({ [player.id]: 0 }); // Initialize score for the current player
-    setShuffledChallenges(shuffleArray(ALL_CHALLENGES));
-    setGameStarted(true);
-    setChallengeIndex(0);
-    setRound(1);
+    const challenges = shuffleArray(ALL_CHALLENGES);
+    setSinglePlayerState({
+      players: [player],
+      scores: { [player.id]: 0 },
+      status: 'playing',
+      round: 1,
+      challenges: challenges,
+      currentChallenge: challenges[0],
+      hostId: player.id
+    });
   };
 
-  const createMultiplayerRoom = () => {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setRoomCode(code);
+  const handleCreateRoom = async () => {
     setGameMode('multi');
-    setIsHost(true);
-    setPlayers([player]); // Host is the current player
-    setScores({ [player.id]: 0 }); // Initialize score for the host
+    const challenges = shuffleArray(ALL_CHALLENGES);
+    const initialState = {
+      players: [player],
+      scores: { [player.id]: 0 },
+      status: 'lobby',
+      round: 1,
+      challenges: challenges,
+      currentChallenge: null,
+      hostId: player.id
+    };
+    await createRoom(initialState);
   };
 
-  const joinMultiplayerRoom = () => {
-    if (roomCode.trim()) {
-      setGameMode('multi');
-      setIsHost(false);
-      // In a real multiplayer game, you'd send 'player' to the host
-      // For this local simulation, we add the current player to the list
-      setPlayers(prevPlayers => [...prevPlayers, player]);
-      setScores(prevScores => ({ ...prevScores, [player.id]: 0 }));
-      alert(`Joined room: ${roomCode} `);
+  const handleJoinRoom = async () => {
+    if (!inputRoomCode.trim()) return;
+    setGameMode('multi');
+    const currentGameState = await joinRoom(inputRoomCode);
+    if (currentGameState) {
+      // Add self to players if not already there
+      const isAlreadyJoined = currentGameState.players.some(p => p.id === player.id);
+      if (!isAlreadyJoined) {
+        const newPlayers = [...currentGameState.players, player];
+        const newScores = { ...currentGameState.scores, [player.id]: 0 };
+        await updateGameState({
+          ...currentGameState,
+          players: newPlayers,
+          scores: newScores
+        });
+      }
     }
   };
 
-  const startGame = () => {
-    setShuffledChallenges(shuffleArray(ALL_CHALLENGES));
-    setGameStarted(true);
-    setChallengeIndex(0);
-    setRound(1);
+  const handleStartGame = async () => {
+    if (!gameState) return;
+    const firstChallenge = gameState.challenges[0];
+    await updateGameState({
+      ...gameState,
+      status: 'playing',
+      currentChallenge: firstChallenge,
+      round: 1
+    });
   };
 
-  const startNewRound = () => {
-    if (challengeIndex < maxRounds && shuffledChallenges.length > 0) {
-      const challenge = shuffledChallenges[challengeIndex];
-      setCurrentChallenge(challenge);
-      setSelectedAnswer(null);
-      setShowResult(false);
-      setTimeLeft(10);
-    } else if (challengeIndex >= maxRounds) {
-      endGame();
-    }
-  };
+  const handleAnswer = async (answer) => {
+    if (localShowResult) return;
+    setLocalSelectedAnswer(answer);
+    setLocalShowResult(true);
 
-  const handleAnswer = (answer) => {
-    if (showResult) return;
-
-    setSelectedAnswer(answer);
-    setShowResult(true);
-
-    if (answer === currentChallenge.correct) {
+    if (answer === activeChallenge.correct) {
       const points = timeLeft * 10;
-      setScores(prev => ({
-        ...prev,
-        [player.id]: (prev[player.id] || 0) + points // Update score for the current player
-      }));
+      const newScores = { ...activeScores, [player.id]: (activeScores[player.id] || 0) + points };
+      await effectiveUpdateState({
+        ...activeState,
+        scores: newScores
+      });
     }
 
-    setTimeout(() => {
-      setChallengeIndex(challengeIndex + 1);
-      setRound(round + 1);
-      startNewRound();
-    }, 2000);
+    if (activeIsHost) {
+      setTimeout(() => {
+        nextRound();
+      }, 2000);
+    }
   };
 
-  const handleTimeout = () => {
-    setShowResult(true);
-    setTimeout(() => {
-      setChallengeIndex(challengeIndex + 1);
-      setRound(round + 1);
-      startNewRound();
-    }, 2000);
-  };
-
-  const endGame = () => {
-    setGameStarted(false);
-  };
-
-  const resetGame = () => {
-    setChallengeIndex(0);
-    setRound(1);
-    setScores({ [player.id]: 0 }); // Reset score for the current player
-    setGameStarted(false);
-    setCurrentChallenge(null);
-    setShuffledChallenges(shuffleArray(ALL_CHALLENGES));
+  const handleReset = () => {
+    resetRoom();
     setGameMode(null);
+    setInputRoomCode('');
+    setLocalSelectedAnswer(null);
+    setLocalShowResult(false);
   };
 
-  // Mode Selection View
+  // --- Render ---
+
   if (!player) {
     return <AvatarSelector onSelect={login} />;
   }
+
   if (!gameMode) {
     return (
       <GameLayout title="Quick Draw">
@@ -189,31 +243,28 @@ const QuickDraw = () => {
               <button className="btn-primary mode-btn" onClick={startSinglePlayer}>
                 <span className="icon">🎮</span> Single Player
               </button>
-
               <div className="divider">OR</div>
-
               <div className="multiplayer-section glass-card">
-                <button className="btn-secondary mode-btn" onClick={createMultiplayerRoom}>
-                  <span className="icon">🌐</span> Create Room
+                <button className="btn-secondary mode-btn" onClick={handleCreateRoom} disabled={isLoading}>
+                  <span className="icon">🌐</span> {isLoading ? 'Creating...' : 'Create Room'}
                 </button>
-
                 <div className="join-room">
                   <input
                     type="text"
                     placeholder="ROOM CODE"
-                    value={roomCode}
-                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                    maxLength={6}
+                    value={inputRoomCode}
+                    onChange={(e) => setInputRoomCode(e.target.value)}
                     className="glass-input"
                   />
                   <button
                     className="btn-primary"
-                    onClick={joinMultiplayerRoom}
-                    disabled={!roomCode.trim()}
+                    onClick={handleJoinRoom}
+                    disabled={!inputRoomCode.trim() || isLoading}
                   >
-                    Join
+                    {isLoading ? 'Joining...' : 'Join'}
                   </button>
                 </div>
+                {roomError && <p className="error-text">{roomError}</p>}
               </div>
             </div>
           </div>
@@ -222,29 +273,27 @@ const QuickDraw = () => {
     );
   }
 
-  // Lobby View
-  if (gameMode === 'multi' && !gameStarted) {
+  // Lobby (Multiplayer Only)
+  if (gameMode === 'multi' && activeStatus === 'lobby') {
     return (
-      <GameLayout title="Quick Draw Lobby" onReset={() => setGameMode(null)}>
+      <GameLayout title="Quick Draw Lobby" onReset={handleReset}>
         <div className="quick-draw-container">
           <div className="lobby glass-panel">
             <div className="room-code-display">
               <span className="label">Room Code</span>
-              <span className="code text-accent">{roomCode}</span>
+              <span className="code text-accent">{roomId}</span>
             </div>
-
             <div className="players-list glass-card">
-              <h3>Players ({players.length})</h3>
-              {players.map(p => (
+              <h3>Players ({activePlayers.length})</h3>
+              {activePlayers.map(p => (
                 <div key={p.id} className="player-item">
                   <span className="avatar">👤</span>
                   <span>{p.name}</span>
                 </div>
               ))}
             </div>
-
-            {isHost ? (
-              <button className="btn-primary start-btn" onClick={startGame}>
+            {activeIsHost ? (
+              <button className="btn-primary start-btn" onClick={handleStartGame}>
                 Start Game
               </button>
             ) : (
@@ -256,35 +305,59 @@ const QuickDraw = () => {
     );
   }
 
-  // Game View
+  // Game Over
+  if (activeStatus === 'finished') {
+    return (
+      <GameLayout title="Quick Draw" onReset={handleReset}>
+        <div className="quick-draw-container">
+          <div className="game-over glass-panel animate-fade-in">
+            <h2>🎉 Game Complete!</h2>
+            <div className="final-scores">
+              {activePlayers.map(p => (
+                <div key={p.id} className="score-row">
+                  <span>{p.name}</span>
+                  <span className="text-accent">{activeScores[p.id] || 0}</span>
+                </div>
+              ))}
+            </div>
+            <button className="btn-primary" onClick={handleReset}>
+              Play Again
+            </button>
+          </div>
+        </div>
+      </GameLayout>
+    );
+  }
+
+  // Playing
   return (
     <GameLayout
       title="Quick Draw"
-      onReset={resetGame}
-      score={scores[players[0].id] || 0}
+      onReset={handleReset}
+      score={activeScores[player.id] || 0}
     >
       <div className="quick-draw-container">
         <div className="game-status-bar glass-card">
-          <div className="round-info">Round {round}/{maxRounds}</div>
+          <div className="round-info">Round {activeRound}/{maxRounds}</div>
           <div className={`timer ${timeLeft <= 3 ? 'urgent' : ''} `}>
             Time: {timeLeft}s
           </div>
         </div>
 
-        {currentChallenge ? (
+        {activeChallenge ? (
           <div className="challenge-area glass-panel">
             <div className="emoji-display">
-              {currentChallenge.emoji}
+              {activeChallenge.emoji}
             </div>
             <p className="question">What is this?</p>
 
             <div className="options-grid">
-              {currentChallenge.options.map((option) => {
+              {activeChallenge.options.map((option) => {
                 let stateClass = '';
-                if (showResult) {
-                  if (option === currentChallenge.correct) stateClass = 'correct';
-                  else if (option === selectedAnswer) stateClass = 'incorrect';
-                } else if (selectedAnswer === option) {
+                if (localShowResult) {
+                  if (option === activeChallenge.correct) stateClass = 'correct';
+                  else if (option === localSelectedAnswer) stateClass = 'incorrect';
+                } else if (localSelectedAnswer === option) {
                   stateClass = 'selected';
                 }
 
@@ -293,7 +366,7 @@ const QuickDraw = () => {
                     key={option}
                     className={`option-btn glass-card ${stateClass}`}
                     onClick={() => handleAnswer(option)}
-                    disabled={showResult}
+                    disabled={localShowResult}
                   >
                     {option}
                   </button>
@@ -302,13 +375,7 @@ const QuickDraw = () => {
             </div>
           </div>
         ) : (
-          <div className="game-over glass-panel animate-fade-in">
-            <h2>🎉 Game Complete!</h2>
-            <p className="final-score">Final Score: <span className="text-accent">{scores[players[0].id] || 0}</span></p>
-            <button className="btn-primary" onClick={resetGame}>
-              Play Again
-            </button>
-          </div>
+          <div className="loading-spinner">Loading...</div>
         )}
       </div>
     </GameLayout>

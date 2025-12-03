@@ -17,7 +17,11 @@ export const PlayerProvider = ({ children }) => {
   }, [player]);
 
   const login = (playerData) => {
-    setPlayer(playerData);
+    const playerWithId = {
+      ...playerData,
+      id: playerData.id || crypto.randomUUID()
+    };
+    setPlayer(playerWithId);
   };
 
   const logout = () => {

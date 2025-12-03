@@ -10,6 +10,9 @@ test.describe('Tic Tac Toe Game', () => {
     await page.locator('.avatar-option').first().click();
     await page.locator('.player-name-input').fill('TicTacPlayer');
     await page.getByRole('button', { name: 'Start Playing' }).click();
+
+    // Select Local Mode
+    await page.getByRole('button', { name: /Local PvP/i }).click();
   });
 
   test('loads the game board', async ({ page }) => {
