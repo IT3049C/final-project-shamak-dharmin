@@ -50,7 +50,7 @@ Hub lists and routes to the following games:
 - **Tic Tac Toe** – classic 3×3 grid with X/O turns and win/draw detection.
 - **Prime Rush** – decide quickly if a random number is prime; score points before running out of lives.
 - **Pattern Lock** – memorize and reproduce highlighted patterns on a 3×3 lock grid.
-- ** Quick draw** - kahoot question selection game also able to create private room available on (localhost) only
+- **Quick draw** - kahoot question selection game also able to create private room available on (localhost) only
 
 The hub also shows the player name and team developers on the landing page.
 
