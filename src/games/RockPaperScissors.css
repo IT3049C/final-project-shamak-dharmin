@@ -1,0 +1,147 @@
+.rps-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: 800px;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: var(--space-md);
+}
+
+.score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.battle-arena {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  padding: var(--space-xl);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.fighter h3 {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+}
+
+.fighter-choice {
+  font-size: 5rem;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.fighter-choice.winner {
+  background: var(--gradient-primary);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+  transform: scale(1.1);
+}
+
+.vs {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.result-display {
+  min-height: 3rem;
+  text-align: center;
+}
+
+.result-display h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.result-display .win {
+  color: #22c55e;
+}
+
+.result-display .lose {
+  color: #ef4444;
+}
+
+.result-display .draw {
+  color: #eab308;
+}
+
+.choices-grid {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-md);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.choice-btn:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.choice-btn .emoji {
+  font-size: 3rem;
+  margin-bottom: var(--space-xs);
+}
+
+.choice-btn .label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+  .battle-arena {
+    padding: var(--space-md);
+  }
+
+  .fighter-choice {
+    font-size: 3rem;
+    width: 80px;
+    height: 80px;
+  }
+
+  .choices-grid {
+    gap: var(--space-sm);
+  }
+
+  .choice-btn {
+    min-width: 80px;
+    padding: var(--space-sm);
+  }
+
+  .choice-btn .emoji {
+    font-size: 2rem;
+  }
+}
