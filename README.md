@@ -14,21 +14,26 @@ I should get **(20)** out of 20 on this assignment.
 ## Self-Reflection
 
 - **How long it took me to finish this?**
-<!-- Answer below this line -->
--
 
-- **What do you think of this completion time?**
-<!-- Answer below this line -->
-- 
+- it took us about three weeks planning, implementing and fixing.
+
+- **What do you think of this completion time?**  
+- I would say it was pretty reasonable because few of the project who are already done in our assignments so most of the things I reuse them and came up with my idea to implement them. Also copilot help me a lot fixing and deep bugging issue when I was implementing additional games.
 
 - **In hindsight, what would you do differently?**
-- <!-- Answer below this line -->
-- 
+
+-  If I wanted to do whole project again, I would use GSAP animation style CSS to pop my game out instead regular CSS.
 
 - **What resources did you use?**
-- <!-- Answer below this line -->
-- 
--
+- [React Documentation](https://react.dev/)
+- [Vite Documentation](https://vitejs.dev/)
+- [Playwright Documentation](https://playwright.dev/)
+- [React Router Documentation](https://reactrouter.com/)
+- [MDN Web Docs](https://developer.mozilla.org/)
+- Stack Overflow
+- Class assignments
+- YouTube
+  
 
 
 Single-page Game Hub built with React and Vite. The hub routes between multiple mini‑games, shares a player name across the experience, and ships with Playwright tests and deployment-ready configuration.
@@ -45,6 +50,7 @@ Hub lists and routes to the following games:
 - **Tic Tac Toe** – classic 3×3 grid with X/O turns and win/draw detection.
 - **Prime Rush** – decide quickly if a random number is prime; score points before running out of lives.
 - **Pattern Lock** – memorize and reproduce highlighted patterns on a 3×3 lock grid.
+- ** Quick draw** - kahoot question selection game also able to create private room available on (localhost) only
 
 The hub also shows the player name and team developers on the landing page.
 
