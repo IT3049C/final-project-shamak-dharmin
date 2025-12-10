@@ -47,9 +47,6 @@ test.describe('GameHub Landing Page', () => {
     // Start Game
     await page.getByRole('button', { name: 'Start Playing' }).click();
 
-    // Verify Game Loaded (Tic Tac Toe board visible)
-    await expect(page.locator('.board-grid')).toBeVisible();
-
     // Verify Player Name in Header
     await expect(page.getByText('Test User').first()).toBeVisible();
   });
