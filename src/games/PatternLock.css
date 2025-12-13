@@ -1,0 +1,79 @@
+.pattern-lock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.info-panel {
+  padding: var(--space-md);
+  text-align: center;
+  min-width: 300px;
+}
+
+.pattern-status {
+  margin-top: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.dot {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.dot.target {
+  background: var(--text-accent);
+  box-shadow: 0 0 20px var(--text-accent);
+  animation: pulse 2s infinite;
+}
+
+.dot.selected {
+  background: var(--gradient-primary);
+  border-color: white;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+.dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+@media (max-width: 400px) {
+  .pattern-grid {
+    gap: var(--space-md);
+    padding: var(--space-lg);
+  }
+
+  .dot {
+    width: 50px;
+    height: 50px;
+  }
+}

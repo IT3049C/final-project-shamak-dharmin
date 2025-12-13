@@ -1,0 +1,31 @@
+.theme-toggle {
+  /* position: fixed; Removed to allow flex layout */
+  /* top: 20px; */
+  /* right: 20px; */
+  width: 44px;
+  /* Slightly smaller to match other buttons */
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  /* Add border to match design system */
+  background: var(--glass-bg);
+  /* Use glass background */
+  color: var(--text-primary);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: var(--glass-shadow);
+  /* z-index: 1000; */
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1) rotate(20deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
