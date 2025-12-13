@@ -161,16 +161,6 @@ If you prefer GitHub Pages, you will need to:
 - Configure the Vite `base` path to match your repository name.
 - Deploy the `dist` folder to GitHub Pages (e.g., via `gh-pages` branch or GitHub Actions).
 
-## Short Reflection (3–5 bullets)
-
-You can adjust the wording, but here are example bullets that match this project:
-
-- Learned how to organize a React SPA with a hub page, shared layout, and multiple self-contained games.
-- Got more comfortable using React Router for navigation and keeping state (like the player name) in a global context.
-- Realized the importance of writing Playwright tests early to catch broken routing or missing selectors before deployment.
-- If I had more time, I would focus on adding a polished multiplayer mode using our class game room API and improving mobile responsiveness.
-- Peer feedback helped prioritize a clean landing page, clearer game descriptions, and a consistent back button on all screens.
-
 ## Team Members
 - Dharmin Patel
 - Shamak Patel
